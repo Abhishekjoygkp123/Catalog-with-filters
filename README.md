@@ -2,8 +2,8 @@
 
 This is a front-end college project that demonstrates a responsive product catalog page built with vanilla HTML, CSS, and JavaScript. It features dynamic product rendering, multi-filter functionality, sorting, and a dark/light theme.
 
-![Product Catalog Project Screenshot](https://i.imgur.com/AB7zL0g.gif)
-> **Note:** The link above is a placeholder GIF. You can create your own using a free tool like [LiceCap](https://www.cockos.com/licecap/) or [ScreenToGif](https://www.screentogif.com/) and update the link.
+![Product Catalog Project Screenshot]
+![Uploading Catalog.png…]()
 
 ---
 
