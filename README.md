@@ -3,7 +3,7 @@
 This is a front-end college project that demonstrates a responsive product catalog page built with vanilla HTML, CSS, and JavaScript. It features dynamic product rendering, multi-filter functionality, sorting, and a dark/light theme.
 
 ![Product Catalog Project Screenshot]
-![Uploading Catalog.png…]()
+https://github.com/Abhishekjoygkp123/Catalog-with-filters/blob/main/Catalog.png?raw=true
 
 ---
 
