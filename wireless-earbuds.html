@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Wireless Earbuds - Product Catalog</title>
+    <style>
+        :root{--bg:#f7f8fb;--card-bg:#ffffff;--text:#222;--muted:#666;--accent:#2563eb;--border:#e6e9ef;--shadow:0 6px 18px rgba(30,30,60,0.06);}
+        [data-theme="dark"]{--bg:#0f1724;--card-bg:#0b1220;--text:#e6eef8;--muted:#99a3b3;--accent:#60a5fa;--border:rgba(255,255,255,0.06);--shadow:none;}
+        body{margin:0;font-family:Inter,Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;min-height:100vh;}
+        .app{max-width:900px;margin:28px auto;padding:18px;}
+        header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px;}
+        .title{display:flex;gap:12px;align-items:center;}
+        .logo{width:48px;height:48px;border-radius:10px;box-shadow:var(--shadow);}
+        h1{font-size:20px;margin:0;}
+        p.small{margin:0;font-size:13px;color:var(--muted);}
+        .footnote{font-size:13px;color:var(--muted);margin-top:14px;text-align:center;}
+        .back-link{display:inline-block;margin-bottom:16px;color:var(--accent);text-decoration:none;font-weight:600;}
+        .product-detail{display:grid;grid-template-columns:1fr 1fr;gap:32px;background:var(--card-bg);padding:24px;border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);}
+        .product-image{background:#fdfdfd;border-radius:8px;display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;border:1px solid var(--border);}
+        .product-image img{width:100%;height:100%;object-fit:contain;}
+        .product-info{display:flex;flex-direction:column;}
+        .product-info .category{font-size:14px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+        .product-info .product-name{font-size:28px;margin:0 0 12px 0;}
+        .product-info .price{font-size:24px;font-weight:700;color:var(--accent);margin-bottom:16px;}
+        .product-info .desc{font-size:15px;line-height:1.6;margin-bottom:24px;color:var(--muted);}
+        .actions{margin-top:auto;display:flex;gap:12px;}
+        .cta{background:var(--accent);color:white;border:none;padding:12px 18px;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;text-align:center;font-size:16px;}
+        .cta.disabled{opacity:0.6;cursor:not-allowed;}
+        .badge{font-size:14px;padding:8px 12px;border-radius:8px;background:rgba(37,99,235,0.08);color:var(--accent);font-weight:600;}
+        .out-of-stock{background:rgba(239,68,68,0.08);color:#ef6a6a;}
+        @media (max-width:768px){.product-detail{grid-template-columns:1fr;}.product-info .product-name{font-size:24px;}}
+
+        /* Pop-up styles */
+        #toast{visibility:hidden;opacity:0;position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background-color:var(--card-bg);color:var(--text);padding:14px 24px;border-radius:8px;border:1px solid var(--border);box-shadow:var(--shadow);z-index:10;transition:opacity .4s,bottom .4s;}
+        #toast.show{visibility:visible;opacity:1;bottom:50px;}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="title">
+                <svg class="logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--accent)"/><stop offset="100%" stop-color="#7dd3fc"/></linearGradient></defs><path fill="url(#logoGradient)" d="M28,4H12C7.58,4,4,7.58,4,12v16c0,4.42,3.58,8,8,8h16c4.42,0,8-3.58,8-8V20c0-1.1-0.9-2-2-2s-2,0.9-2,2v8 c0,2.21-1.79,4-4,4H12c-2.21,0-4-1.79-4-4V12c0-2.21,1.79-4,4-4h16c1.1,0,2-0.9,2-2S29.1,4,28,4z"/><path fill="url(#logoGradient)" opacity="0.7" d="M40,10H24c-1.1,0-2,0.9-2,2s0.9,2,2,2h16c2.21,0,4,1.79,4,4v16c0,1.1,0.9,2,2,2s2-0.9,2-2V16C48,12.69,44.31,10,40,10z"/></svg>
+                <div><h1>Product Catalog</h1><p class="small">Product Details</p></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;"><label for="themeToggle" class="small">Dark mode</label><button id="themeToggle" style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;">🌓</button></div>
+        </header>
+        <main>
+            <a href="Catalog.html" class="back-link">&larr; Back to Catalog</a>
+            <div class="product-detail">
+                <div class="product-image"><img src="Wireless earbuds.jpeg" alt="Wireless Earbuds"></div>
+                <div class="product-info">
+                    <div>
+                        <p class="category">Electronics</p>
+                        <h2 class="product-name">Wireless Earbuds</h2>
+                        <p class="price">₹ 2199</p>
+                        <p class="desc">Stereo earbuds with charging case.</p>
+                        <div class="badge out-of-stock">Out of stock</div>
+                    </div>
+                    <div class="actions">
+                        <a href="#" class="cta disabled">Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <p class="footnote">Made for a college project — demo data & placeholder images used.</p>
+    </div>
+
+    <div id="toast">✅ Added to cart!</div>
+
+    <script>
+        const themeToggle=document.getElementById("themeToggle"),root=document.documentElement;const savedTheme=localStorage.getItem("pc_theme");savedTheme&&root.setAttribute("data-theme",savedTheme),themeToggle.addEventListener("click",()=>{const t=root.getAttribute("data-theme"),e="dark"===t?"":"dark";e?root.setAttribute("data-theme","dark"):root.removeAttribute("data-theme"),localStorage.setItem("pc_theme",e?"dark":"")});
+
+        const addToCartBtn = document.querySelector('.cta');
+        const toast = document.getElementById('toast');
+        if (addToCartBtn && toast) {
+            addToCartBtn.addEventListener('click', (event) => {
+                if (!addToCartBtn.classList.contains('disabled')) {
+                    event.preventDefault();
+                    toast.classList.add('show');
+                    setTimeout(() => { toast.classList.remove('show'); }, 3000);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

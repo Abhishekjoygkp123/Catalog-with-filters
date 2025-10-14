@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Product Catalog with Filters (College Project)</title>
+
+  <!-- Simple CSS reset & theme variables -->
+  <style>
+    :root{
+      --bg: #f7f8fb;
+      --card-bg: #ffffff;
+      --text: #222;
+      --muted: #666;
+      --accent: #2563eb;
+      --border: #e6e9ef;
+      --shadow: 0 6px 18px rgba(30,30,60,0.06);
+    }
+    [data-theme="dark"]{
+      --bg: #0f1724;
+      --card-bg: #0b1220;
+      --text: #e6eef8;
+      --muted: #99a3b3;
+      --accent: #60a5fa;
+      --border: rgba(255,255,255,0.06);
+      --shadow: none;
+    }
+
+    /* FIX: Explicitly set select background in dark mode */
+    [data-theme="dark"] select {
+      background-color: var(--card-bg);
+    }
+
+    /* Page layout */
+    body{
+      margin:0;
+      font-family: Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg), var(--bg));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      min-height:100vh;
+    }
+    .app {
+      max-width:1100px;
+      margin:28px auto;
+      padding:18px;
+    }
+    header {
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .title {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    /* MODIFIED: CSS for the new SVG logo */
+    .logo {
+      width:48px;
+      height:48px;
+      border-radius:10px;
+      box-shadow:var(--shadow);
+    }
+    h1 { font-size:20px; margin:0; }
+    p.small { margin:0; font-size:13px; color:var(--muted); }
+
+    /* Controls area */
+    .controls {
+      background:var(--card-bg);
+      border:1px solid var(--border);
+      padding:12px;
+      border-radius:10px;
+      display:grid;
+      gap:12px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+    .controls-row {
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    input[type="search"], select {
+      padding:10px 12px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--text);
+      min-width:160px;
+    }
+    label { font-size:13px; color:var(--muted); }
+
+    /* Grid and cards */
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap:16px;
+    }
+    .card {
+      background:var(--card-bg);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+
+      /* ensure cards keep a vertical feel when they grow wide */
+      min-height: 320px;
+    }
+
+    /* THUMBNAIL: use aspect-ratio and contain so the entire image is visible and fits the card */
+    .thumb {
+      background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+      border-radius:8px;
+      /* remove fixed height and use aspect-ratio for consistent image area */
+      aspect-ratio: 4 / 3;      /* keeps width:height = 4:3 */
+      width: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex: 0 0 auto;            /* don't let the thumb collapse or stretch */
+      text-decoration: none;
+    }
+    /* show whole image (no cropping). center it and maintain aspect ratio */
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;      /* changed from cover -> contain */
+      display:block;
+      background: #f7f7f7;      /* small neutral background if aspect ratios differ */
+    }
+
+    .meta {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+    .price { font-weight:700; }
+    .desc { color:var(--muted); font-size:13px; margin:0; min-height:36px; }
+
+    .badge {
+      font-size:12px;
+      padding:6px 8px;
+      border-radius:999px;
+      background:rgba(37,99,235,0.08);
+      color:var(--accent);
+    }
+
+    .out-of-stock {
+      background: rgba(239,68,68,0.08);
+      color: #ef6a6a;
+      border-radius:8px;
+      padding:6px 8px;
+      font-size:13px;
+    }
+
+    .card-footer {
+      margin-top:auto;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    
+    a.cta {
+      background:var(--accent);
+      color:white;
+      border:none;
+      padding:8px 12px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      text-decoration: none;
+      text-align: center;
+    }
+    /* MODIFIED: Removed 'pointer-events: none' to make the link clickable */
+    a.cta.disabled { 
+        opacity:0.6; 
+        cursor:not-allowed; 
+    }
+
+    /* Footer small text */
+    .footnote { font-size:13px; color:var(--muted); margin-top:14px; text-align:center; }
+
+    /* Responsive: make controls flow nicely on small screens */
+    @media (max-width:640px){
+      header { flex-direction:column; align-items:flex-start; gap:12px; }
+      .controls-row { flex-direction:column; align-items:stretch; }
+      input[type="search"], select { width:100%; }
+      /* mobile thumb slightly shorter but still governed by aspect-ratio */
+      .card { min-height: 300px; }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header>
+      <div class="title">
+        <svg class="logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="var(--accent)"/>
+                    <stop offset="100%" stop-color="#7dd3fc"/>
+                </linearGradient>
+            </defs>
+            <path fill="url(#logoGradient)" d="M28,4H12C7.58,4,4,7.58,4,12v16c0,4.42,3.58,8,8,8h16c4.42,0,8-3.58,8-8V20c0-1.1-0.9-2-2-2s-2,0.9-2,2v8 c0,2.21-1.79,4-4,4H12c-2.21,0-4-1.79-4-4V12c0-2.21,1.79-4,4-4h16c1.1,0,2-0.9,2-2S29.1,4,28,4z"/>
+            <path fill="url(#logoGradient)" opacity="0.7" d="M40,10H24c-1.1,0-2,0.9-2,2s0.9,2,2,2h16c2.21,0,4,1.79,4,4v16c0,1.1,0.9,2,2,2s2-0.9,2-2V16C48,12.69,44.31,10,40,10z"/>
+        </svg>
+        <div>
+          <h1>Product Catalog — Filters & Search</h1>
+          <p class="small">College project • HTML / CSS / JS • Responsive • Dark mode</p>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;">
+        <label for="themeToggle" class="small" style="color:var(--muted);">Dark mode</label>
+        <button id="themeToggle" aria-label="Toggle theme" style="padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;">
+          🌓
+        </button>
+      </div>
+    </header>
+
+    <section class="controls" aria-label="Filters and search">
+      <div class="controls-row" style="align-items:center;">
+        <div style="flex:1;">
+          <label for="searchInput">Search products</label><br>
+          <input id="searchInput" type="search" placeholder="Type product name... (e.g. 'sneakers')" />
+        </div>
+
+        <div>
+          <label for="categorySelect">Category</label><br>
+          <select id="categorySelect">
+            <option value="all">All categories</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="priceSelect">Price range</label><br>
+          <select id="priceSelect">
+            <option value="all">All prices</option>
+            <option value="lt500">Below ₹500</option>
+            <option value="500-999">₹500 — ₹999</option>
+            <option value="1000-1999">₹1000 — ₹1999</option>
+            <option value="gte2000">₹2000 & above</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="availSelect">Availability</label><br>
+          <select id="availSelect">
+            <option value="all">All</option>
+            <option value="in">In stock</option>
+            <option value="out">Out of stock</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="sortSelect">Sort by</label><br>
+          <select id="sortSelect">
+            <option value="default">Default</option>
+            <option value="price_asc">Price: low → high</option>
+            <option value="price_desc">Price: high → low</option>
+            <option value="name_az">Name: A → Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="controls-row" style="justify-content:space-between;">
+        <p class="small" style="margin:0;">Tip: combine filters + search to narrow results quickly.</p>
+        <button id="clearFilters" style="background:transparent;border:none;color:var(--accent);cursor:pointer;padding:6px 8px;">Clear filters</button>
+      </div>
+    </section>
+
+    <main>
+      <div id="productGrid" class="grid" aria-live="polite"></div>
+      <p id="noResults" class="footnote" style="display:none;">No products match your filters — try clearing or changing filters.</p>
+    </main>
+
+    <p class="footnote">Made for a college project — demo data & placeholder images used.</p>
+  </div>
+
+  <script>
+    /****************************************************************
+     * Dummy product data (filenames only). Place these image files
+     * in the same folder as this HTML file.
+     ****************************************************************/
+    const PRODUCTS = [
+      { id:1, name:"Comfy Sneakers", category:"Footwear", price:1299, desc:"Lightweight canvas sneakers for daily wear.", image:"Comfy sneakers.jpg", inStock:true },
+      { id:2, name:"Classic T-Shirt", category:"Clothing", price:499, desc:"100% cotton crew-neck t-shirt.", image:"Classic T shirt.jpg", inStock:true },
+      { id:3, name:"Wireless Earbuds", category:"Electronics", price:2199, desc:"Stereo earbuds with charging case.", image:"Wireless earbuds.jpeg", inStock:false },
+      { id:4, name:"Travel Backpack", category:"Accessories", price:1799, desc:"Water-resistant backpack with laptop sleeve.", image:"Travel backpack.jpg", inStock:true },
+      { id:5, name:"Formal Shoes", category:"Footwear", price:2399, desc:"Leather formal shoes for office and events.", image:"Formal shoes.jpg", inStock:false },
+      { id:6, name:"Smartwatch Lite", category:"Electronics", price:3499, desc:"Basic smartwatch with heart-rate monitor.", image:"Smart watch.jpeg", inStock:true },
+      { id:7, name:"Denim Jeans", category:"Clothing", price:1199, desc:"Slim-fit denim jeans with stretch.", image:"Denim jeans.jpg", inStock:true },
+      { id:8, name:"Sunglasses", category:"Accessories", price:799, desc:"UV-protection polarized sunglasses.", image:"Sunglasses.jpg", inStock:true }
+    ];
+
+    /****************************************************************
+     * Simple helper elements & initial setup
+     ****************************************************************/
+    const gridEl = document.getElementById('productGrid');
+    const noResultsEl = document.getElementById('noResults');
+
+    const searchInput = document.getElementById('searchInput');
+    const categorySelect = document.getElementById('categorySelect');
+    const priceSelect = document.getElementById('priceSelect');
+    const availSelect = document.getElementById('availSelect');
+    const sortSelect = document.getElementById('sortSelect');
+    const clearFiltersBtn = document.getElementById('clearFilters');
+
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const root = document.documentElement;
+
+    // Persist theme in localStorage
+    const savedTheme = localStorage.getItem('pc_theme');
+    if(savedTheme) root.setAttribute('data-theme', savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme');
+      const next = current === 'dark' ? '' : 'dark';
+      if(next) root.setAttribute('data-theme', 'dark');
+      else root.removeAttribute('data-theme');
+      localStorage.setItem('pc_theme', next ? 'dark' : '');
+    });
+
+    /****************************************************************
+     * Populate Category select dynamically from data (keeps it DRY)
+     ****************************************************************/
+    function populateCategories() {
+      const cats = Array.from(new Set(PRODUCTS.map(p => p.category))).sort();
+      cats.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        categorySelect.appendChild(opt);
+      });
+    }
+
+    /****************************************************************
+     * Render product cards for a given list of products
+     ****************************************************************/
+    function renderProducts(list) {
+      gridEl.innerHTML = '';
+      if(!list || list.length === 0) {
+        noResultsEl.style.display = 'block';
+        return;
+      } else {
+        noResultsEl.style.display = 'none';
+      }
+
+      list.forEach(p => {
+        // Create a URL-friendly slug from the product name
+        const productPageSlug = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const productPageUrl = `${productPageSlug}.html`;
+
+        // Card wrapper
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.setAttribute('data-id', p.id);
+
+        // MODIFIED: Image / thumbnail is now a link
+        const thumbLink = document.createElement('a');
+        thumbLink.href = productPageUrl;
+        thumbLink.className = 'thumb';
+        const img = document.createElement('img');
+        img.src = p.image;
+        img.alt = p.name;
+        thumbLink.appendChild(img);
+
+        // Meta: name & price
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        const left = document.createElement('div');
+        left.innerHTML = `<div style="font-weight:600">${p.name}</div><div style="font-size:13px;color:var(--muted)">${p.category}</div>`;
+        const right = document.createElement('div');
+        right.innerHTML = `<div class="price">₹ ${p.price}</div>`;
+
+        meta.appendChild(left);
+        meta.appendChild(right);
+
+        // Description
+        const desc = document.createElement('p');
+        desc.className = 'desc';
+        desc.textContent = p.desc;
+
+        // Footer: stock + button
+        const footer = document.createElement('div');
+        footer.className = 'card-footer';
+        const stockEl = document.createElement('div');
+        stockEl.setAttribute('aria-hidden','true');
+        if(p.inStock) {
+          stockEl.className = 'badge';
+          stockEl.textContent = 'In stock';
+        } else {
+          stockEl.className = 'out-of-stock';
+          stockEl.textContent = 'Out of stock';
+        }
+
+        // MODIFIED: Button is now an anchor tag `<a>` for navigation
+        const btn = document.createElement('a');
+        btn.className = 'cta';
+        btn.href = productPageUrl;
+        btn.textContent = 'View';
+        // Style as disabled for out-of-stock items
+        if(!p.inStock) btn.classList.add('disabled');
+
+        footer.appendChild(stockEl);
+        footer.appendChild(btn);
+
+        // Put together
+        card.appendChild(thumbLink);
+        card.appendChild(meta);
+        card.appendChild(desc);
+        card.appendChild(footer);
+
+        gridEl.appendChild(card);
+      });
+    }
+
+    /****************************************************************
+     * Filter & sort logic (single function called on input change)
+     ****************************************************************/
+    function applyFilters() {
+      let results = PRODUCTS.slice(); // clone
+
+      // Search by name (case-insensitive)
+      const q = searchInput.value.trim().toLowerCase();
+      if(q) {
+        results = results.filter(p => p.name.toLowerCase().includes(q));
+      }
+
+      // Category filter
+      const cat = categorySelect.value;
+      if(cat !== 'all') results = results.filter(p => p.category === cat);
+
+      // Price filter (predefined ranges)
+      const pr = priceSelect.value;
+      if(pr === 'lt500') results = results.filter(p => p.price < 500);
+      else if(pr === '500-999') results = results.filter(p => p.price >= 500 && p.price <= 999);
+      else if(pr === '1000-1999') results = results.filter(p => p.price >= 1000 && p.price <= 1999);
+      else if(pr === 'gte2000') results = results.filter(p => p.price >= 2000);
+
+      // Availability filter
+      const av = availSelect.value;
+      if(av === 'in') results = results.filter(p => p.inStock);
+      else if(av === 'out') results = results.filter(p => !p.inStock);
+
+      // Sorting
+      const sort = sortSelect.value;
+      if(sort === 'price_asc') results.sort((a,b) => a.price - b.price);
+      else if(sort === 'price_desc') results.sort((a,b) => b.price - a.price);
+      else if(sort === 'name_az') results.sort((a,b) => a.name.localeCompare(b.name));
+
+      // Render final results
+      renderProducts(results);
+    }
+
+    /****************************************************************
+     * Small utility: debounce for search input to avoid filtering on every keystroke
+     ****************************************************************/
+    function debounce(fn, ms=220){
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+      };
+    }
+
+    /****************************************************************
+     * Event wiring
+     ****************************************************************/
+    // Populate category list from data and render initial grid
+    populateCategories();
+    renderProducts(PRODUCTS);
+
+    // Attach filter events
+    const debouncedApply = debounce(applyFilters, 180);
+    searchInput.addEventListener('input', debouncedApply);
+    categorySelect.addEventListener('change', applyFilters);
+    priceSelect.addEventListener('change', applyFilters);
+    availSelect.addEventListener('change', applyFilters);
+    sortSelect.addEventListener('change', applyFilters);
+    clearFiltersBtn.addEventListener('click', () => {
+      // reset UI controls and re-render
+      searchInput.value = '';
+      categorySelect.value = 'all';
+      priceSelect.value = 'all';
+      availSelect.value = 'all';
+      sortSelect.value = 'default';
+      applyFilters();
+    });
+
+    // Accessibility: keyboard press on enter for search triggers filter immediately
+    searchInput.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter') applyFilters();
+    });
+
+  </script>
+</body>
+</html>
+
